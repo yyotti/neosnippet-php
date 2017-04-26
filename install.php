@@ -150,8 +150,8 @@ class ReflectionFunctionEx extends ReflectionFunction {
         $parts = [];
 
         foreach ($this->parameters as $p) {
-            $pos = $p->getPosition();
-            $comma = ($pos > 0 ? ', ' : '');
+            $pos = $p->getPosition() + 1;
+            $comma = ($pos > 1 ? ', ' : '');
 
             $param = $p->toSnippet();
             // TODO オプショナルな場合はデフォルト値が残るようにする
