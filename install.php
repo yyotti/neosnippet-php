@@ -108,7 +108,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
         for ($i = 0; $i < min($method_params->count(), $this->getNumberOfParameters()); $i++) {
             $p = pq($method_params->get($i));
 
-            $type = trim($p->find('.type:not(a)')->text());
+            $type = trim($p->find('.type:not(a):not(:has(*))')->text());
             if (!empty($type)) {
                 $this->getParameters()[$i]->setTypeString($type);
             }
