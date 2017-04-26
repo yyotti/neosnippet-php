@@ -93,8 +93,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
             }
         }
         if (is_null($method)) {
-            // TODO 任意パラメータも含めてもういっかい探ってみる
-            print "{$this->getName()}'s description is not found or not unique.\n";
+            // TODO 任意パラメータも含めてもういっかい探ってみる？
             return;
         }
 
@@ -113,7 +112,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
                 $this->getParameters()[$i]->setTypeString($type);
             }
 
-            if ($params[$i]->isOptional() && preg_match('/^\s*=\s*(.+)$/', trim($p->find('.initializer')->text()), $m) === 1) {
+            if ($params[$i]->isOptional() and preg_match('/^\s*=\s*(.+)$/', trim($p->find('.initializer')->text()), $m) === 1) {
                 $params[$i]->setDefaultValue($m[1]);
             }
         }
@@ -148,16 +147,8 @@ class ReflectionFunctionEx extends ReflectionFunction {
 
     private function params2String() {
         $parts = [];
-
         foreach ($this->parameters as $p) {
-            $pos = $p->getPosition() + 1;
-            $comma = ($pos > 1 ? ', ' : '');
-
-            $param = $p->toSnippet();
-            // TODO オプショナルな場合はデフォルト値が残るようにする
-            // TODO オプショナルでない場合は , は外に出るように
-            // TODO オプショナルは全体を[]で囲んで、全体を消せるようにしたい([ [int $opt1 = 1], [int $opt2 = 2] ])
-            $parts[$pos] = "\${{$pos}:{$comma}{$param}}";
+            $parts[$p->getPosition()] = $p->toSnippet();
         }
         ksort($parts);
 
@@ -219,6 +210,14 @@ class ReflectionParameterEx extends ReflectionParameter {
         }
         $variadic = $this->isVariadic() ? '...' : '';
 
-        return trim("{$prefix}{$type}{$ref_sign}\${$this->getName()}{$variadic}{$default_value}{$suffix}");
+        $str = trim("{$prefix}{$type}{$ref_sign}\${$this->getName()}{$variadic}{$default_value}{$suffix}");
+
+        $num = $this->getPosition() + 1;
+        $comma = $num > 1 ? ', ' : '';
+        if ($this->isOptional()) {
+            return "\${{$num}:#:{$comma}{$str}}";
+        } else {
+            return "{$comma}\${{$num}:{$str}}";
+        }
     }
 }
