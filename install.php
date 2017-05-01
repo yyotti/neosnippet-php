@@ -84,7 +84,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
         require_once 'phpQuery-onefile.php';
 
         $doc = phpQuery::newDocument(file_get_contents($help_file));
-        $this->description = trim($doc['.refnamediv .refpurpose .dc-title']->text());
+        $this->description = trim(preg_replace('/\r|\n/', '', $doc['.refnamediv .refpurpose .dc-title']->text()));
 
         $method_names = $doc['.refsect1.description .methodsynopsis.dc-description .methodname:not(:contains("::"))'];
         $cnt = $method_names->count();
@@ -112,7 +112,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
 
         $return_type = trim(pq($method)->prev('.type')->text());
         if (!empty($return_type)) {
-            $this->description = sprintf('%s %s', $return_type, $this->description);
+            $this->returnType = $return_type;
         }
 
         $params = $this->getParameters();
