@@ -20,6 +20,12 @@ function is_php7_or_higher() {
 }
 
 function get_available_functions($help_dir) {
+    $language_structures = [
+    ];
+    if (is_php7_or_higher()) {
+        $language_structures[] = 'assert';
+    }
+
     $functions = array_filter(
         array_map(function ($fname) use ($help_dir) {
             try {
@@ -36,7 +42,14 @@ function get_available_functions($help_dir) {
 }
 
 function create_snippet($output, $functions) {
-    file_put_contents($output, implode("\n", array_map(function ($func) { return $func->toSnippet(); }, $functions)));
+    if (file_exists($output)) {
+        unlink($output);
+    }
+    $language_structures_file = rtrim(dirname($output), '/') . '/language_structures.snip.template';
+    if (file_exists($language_structures_file)) {
+        copy($language_structures_file, $output);
+    }
+    file_put_contents($output, implode("\n", array_map(function ($func) { return $func->toSnippet(); }, $functions)), FILE_APPEND);
 }
 
 class ReflectionFunctionEx extends ReflectionFunction {
@@ -138,7 +151,7 @@ class ReflectionFunctionEx extends ReflectionFunction {
             }
             $lines[] = trim($abbr);
         }
-        $lines[] = 'options     ' . ((!empty($this->getReturnTypeString()) and $this->getReturnTypeString() == 'void') ? 'head' : 'word');
+        $lines[] = 'options     ' . (empty($this->getReturnTypeString()) ? 'head' : 'word');
         $lines[] = "\t{$this->name}(" . $this->params2String() . ')${0}';
         $lines[] = '';
 
