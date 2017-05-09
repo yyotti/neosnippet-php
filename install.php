@@ -20,13 +20,7 @@ function is_php7_or_higher() {
 }
 
 function get_available_functions($help_dir) {
-    $language_structures = [
-    ];
-    if (is_php7_or_higher()) {
-        $language_structures[] = 'assert';
-    }
-
-    $functions = array_filter(
+    return array_filter(
         array_map(function ($fname) use ($help_dir) {
             try {
                 $function = new ReflectionFunctionEx($fname, $help_dir);
@@ -37,8 +31,6 @@ function get_available_functions($help_dir) {
         }, get_defined_functions()['internal']),
         function ($f) { return !is_null($f); }
     );
-
-    return $functions;
 }
 
 function create_snippet($output, $functions) {
@@ -48,6 +40,17 @@ function create_snippet($output, $functions) {
     $language_structures_file = rtrim(dirname($output), '/') . '/language_structures.snip.template';
     if (file_exists($language_structures_file)) {
         copy($language_structures_file, $output);
+    }
+
+    if (empty(array_filter($functions, function ($func) { return $func->getName() == 'assert'; }))) {
+        $assert_file = rtrim(dirname($output), '/') . '/assert.snip.template';
+        if (file_exists($assert_file)) {
+            file_put_contents($output, file_get_contents($assert_file), FILE_APPEND);
+        }
+    }
+    $assert_file = rtrim(dirname($output), '/') . '/assert.snip.template';
+    if (file_exists($assert_file) && array_key_exists('assert', $functions)) {
+        copy($assert_file, $output);
     }
     file_put_contents($output, implode("\n", array_map(function ($func) { return $func->toSnippet(); }, $functions)), FILE_APPEND);
 }

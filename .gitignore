@@ -1,3 +1,4 @@
 snippets/*
 !snippets/.keepme
 !snippets/language_structures.snip.template
+!snippets/assert.snip.template

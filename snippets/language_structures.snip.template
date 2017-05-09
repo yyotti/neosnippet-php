@@ -1,8 +1,3 @@
-snippet     assert
-abbr        bool assertion が FALSE であるかどうかを調べる
-options     word
-	assert(${1:mixed $assertion}${2:#:, [string $description]})${0}
-
 snippet     die
 abbr        メッセージを出力し、現在のスクリプトを終了する
 options     head
